@@ -1,11 +1,16 @@
 version: '3'
+
+networks:
+  app-net:
+    driver: bridge
+
 services:
   qa_db:
     image: pgvector/pgvector:pg15
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: psql
+      POSTGRES_DB: context_qa_db
     ports:
       - 5432:5432
     restart: always
@@ -24,7 +29,7 @@ services:
     build:
       context: ./frontend
     ports:
-      - 80:80
+      - 5173:5173
     depends_on:
       - backend
     networks:
@@ -36,15 +41,11 @@ services:
     ports:
       - 8000:8000
     environment:
-      - DATABASE_URL=postgresql+psycopg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@qa_db:5432/${POSTGRES_DB}
+      - DATABASE_URL=postgresql+psycopg://postgres:psql@qa_db:5432/context_qa_db
       - OLLAMA_SERVICE_URL=http://ollama_service:11434
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      # - OPENAI_API_KEY=
     depends_on:
       - ollama_service
       - qa_db
     networks:
       - app-net
-
-networks:
-  app-net:
-    driver: bridge

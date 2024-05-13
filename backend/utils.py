@@ -19,3 +19,20 @@ def create_topic_classifier(topic: str = 'IT', base_url: str = 'http://localhost
             | Ollama(model='llama3', base_url=base_url)
             | StrOutputParser()
     ) 
+
+
+def create_ollama_chain(base_url: str = 'http://localhost:11434'):
+    return (
+        PromptTemplate.from_template(
+            """Given the user question below, generate an answer.
+            Be concise and informative. Do not provide more information than necessary.
+
+            <question>
+            {user_question}
+            </question>
+
+            Answer:"""
+            )
+            | Ollama(model='llama3', base_url=base_url)
+            | StrOutputParser()
+    )
